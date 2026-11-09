@@ -1,0 +1,79 @@
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  annotations:
+    che.eclipse.org/checluster-defaults-cleanup: '{"containers.resources":"true","spec.components.dashboard.headerMessage":"true","spec.components.pluginRegistry.openVSXURL":"true","spec.devEnvironments.containerRunConfiguration.containerSecurityContext.capabilities.add":"true","spec.devEnvironments.defaultComponents":"true","spec.devEnvironments.defaultEditor":"true","spec.devEnvironments.disableContainerBuildCapabilities":"true"}'
+  name: devspaces
+  namespace: openshift-devspaces
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+    dashboard:
+      deployment:
+        containers:
+          - env:
+              - name: CHE_HIDE_EDITORS_BY_ID
+                value: 'che-incubator/che-clion-server/latest, che-incubator/che-code-sshd-kiro/latest, che-incubator/che-goland-server/latest, che-incubator/che-idea-server/latest, che-incubator/che-phpstorm-server/latest, che-incubator/che-pycharm-server/latest, che-incubator/che-rider-server/latest, che-incubator/che-rubymine-server/latest, che-incubator/che-webstorm-server/latest, che-incubator/jetbrains-sshd/latest'
+      logLevel: ERROR
+    devWorkspace: {}
+    devfileRegistry:
+      disableInternalRegistry: true
+    imagePuller:
+      enable: false
+      spec: {}
+    metrics:
+      enable: true
+    pluginRegistry:
+      openVSXURL: 'https://open-vsx.org/'
+  containerRegistry: {}
+  devEnvironments:
+    startTimeoutSeconds: 600
+    security:
+      containerSecurityContext:
+        runAsNonRoot: true
+    secondsOfRunBeforeIdling: -1
+    maxNumberOfWorkspacesPerUser: 4
+    disableContainerRunCapabilities: false
+    containerBuildConfiguration:
+      openShiftSecurityContextConstraint: custom-container-build
+    containerRunConfiguration:
+      containerSecurityContext:
+        allowPrivilegeEscalation: true
+        capabilities:
+          add:
+            - SETGID
+            - SETUID
+            - CHOWN
+        procMount: Unmasked
+      openShiftSecurityContextConstraint: container-run
+      workspacesPodAnnotations:
+        io.kubernetes.cri-o.Devices: '/dev/fuse,/dev/net/tun'
+    ignoredUnrecoverableEvents:
+      - FailedScheduling
+    maxNumberOfRunningWorkspacesPerUser: 2
+    defaultNamespace:
+      autoProvision: true
+      template: <username>-devspaces
+    secondsOfInactivityBeforeIdling: 1800
+    storage:
+      perWorkspaceStrategyPvcConfig:
+        claimSize: 5Gi
+        # storageClass: devspaces-storageclass
+      pvcStrategy: per-workspace
+    persistUserHome:
+      enabled: true
+  # gitServices:
+  #   github:
+  #     - secretName: github-oauth-config
+  networking:
+    auth:
+      gateway:
+        configLabels:
+          app: che
+          component: che-gateway-config
+    # domain: domain1.com.br
+    # hostname: domain1.com.br
+    labels:
+      type: devspaces
