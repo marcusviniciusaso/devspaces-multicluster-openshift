@@ -1,0 +1,14 @@
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: devspaces
+  namespace: openshift-devspaces
+spec:
+  networking:
+    auth:
+      advancedAuthorization:
+        allowUsers:
+          - kube:admin
+        allowGroups:
+          - 73f74865-025d-404c-8214-22a3941a563b   # team-b (Entra ID)
+          - 6a758b5d-bbfb-498c-ae13-0cea9803de29   # admins (Entra ID)

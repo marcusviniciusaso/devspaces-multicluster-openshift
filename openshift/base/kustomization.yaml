@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - scc-container-run.yaml
+  - scc-custom-container-build.yaml
+  - checluster.yaml

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: devspaces-gitops
+  namespace: devspaces-gitops
+spec:
+  server:
+    route:
+      enabled: true
+      tls:
+        termination: reencrypt
+        insecureEdgeTerminationPolicy: Redirect
+  sso:
+    provider: dex
+    dex:
+      openShiftOAuth: true
+  rbac:
+    defaultPolicy: ''
+    policy: |
+      g, system:cluster-admins, role:admin
+      g, cluster-admins, role:admin
+      g, 6a758b5d-bbfb-498c-ae13-0cea9803de29, role:admin
+    scopes: '[groups]'
