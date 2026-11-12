@@ -10,29 +10,21 @@ Executar os comandos em ambos os clusters.
 
 | Item | Valor |
 | --- | --- |
-| Repositório GitOps (privado) | `https://github.com/marcusviniciusaso/devspaces-multicluster-openshift` |
-| Repositório do redirector (público) | `https://github.com/marcusviniciusaso/devspaces-multicluster-redirector` |
-| Repositório do sample (privado) | `https://github.com/marcusviniciusaso/custom-udi-java` |
+| Repositório GitOps | `https://github.com/marcusviniciusaso/devspaces-multicluster-openshift` |
+| Repositório do redirector | `https://github.com/marcusviniciusaso/devspaces-multicluster-redirector` |
+| Repositório do sample | `https://github.com/marcusviniciusaso/custom-udi-java` |
 | Token GitHub com leitura nos repositórios privados | `<GITHUB_PAT>` |
 | GitHub OAuth App do aro1 (Settings → Developer settings → OAuth Apps) | Homepage `https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io/` · Callback `https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io/api/oauth/callback` → `<CLIENT_ID>` / `<CLIENT_SECRET>` |
 | GitHub OAuth App do aro2 | Homepage `https://devspaces.apps.pmw9dsj2w2debff947.eastus.aroapp.io/` · Callback `https://devspaces.apps.pmw9dsj2w2debff947.eastus.aroapp.io/api/oauth/callback` → `<CLIENT_ID>` / `<CLIENT_SECRET>` |
-| Usuários de teste | Cada usuário logou ao menos uma vez nos dois clusters (cria usuário e grupos do Entra ID) |
-| Artefatos | Commitados no branch `main` dos dois repositórios |
 
 ```bash
-cd multicluster/devspaces-multicluster-openshift
+git clone https://github.com/marcusviniciusaso/devspaces-multicluster-openshift.git
+cd devspaces-multicluster-openshift
 ```
 
-## 1. Login
+## 1. Operators
 
-```bash
-oc login https://api.kmw9dlzrxf7af3b80c.eastus.aroapp.io:6443 -u kubeadmin -p '<SENHA>'
-oc whoami --show-server
-```
-
-## 2. Operators
-
-### 2.1 Dev Spaces
+### 1.1 Dev Spaces
 
 ```bash
 oc apply -f - <<'YAML'
@@ -59,7 +51,7 @@ devspacesoperator.v3.30.2      Red Hat OpenShift Dev Spaces   3.30.2    Succeede
 devworkspace-operator.v1.0.0   DevWorkspace Operator          1.0.0     Succeeded
 ```
 
-### 2.2 OpenShift GitOps
+### 1.2 OpenShift GitOps
 
 ```bash
 oc apply -f - <<'YAML'
@@ -98,9 +90,9 @@ NAME                                DISPLAY                    VERSION   PHASE
 openshift-gitops-operator.v1.22.3   Red Hat OpenShift GitOps   1.22.3    Succeeded
 ```
 
-## 3. Secrets de acesso ao GitHub
+## 2. Secrets de acesso ao GitHub
 
-### 3.1 Dev Spaces — GitHub OAuth App (`gitServices.github`)
+### 2.1 Dev Spaces — GitHub OAuth App (`gitServices.github`)
 
 ```bash
 oc apply -f openshift/base/namespace.yaml
@@ -123,7 +115,7 @@ stringData:
 YAML
 ```
 
-### 3.2 GitOps — credencial do repositório privado
+### 2.2 GitOps — credencial do repositório privado
 
 ```bash
 oc apply -f argocd/base/namespace.yaml
@@ -144,7 +136,7 @@ stringData:
 YAML
 ```
 
-## 4. Instância do Dev Spaces
+## 3. Instância do Dev Spaces
 
 ```bash
 oc apply -k openshift/aro1
@@ -173,7 +165,7 @@ oc get deploy devspaces -n openshift-devspaces -o jsonpath='{.spec.template.spec
 /che-conf/oauth/github/id
 ```
 
-## 5. Instância dedicada do GitOps
+## 4. Instância dedicada do GitOps
 
 `argocd/base` cria o namespace `devspaces-gitops`, a instância `devspaces-gitops` e o ClusterRole `devspaces-gitops-scc` (a instância cluster-scoped não recebe permissão em SCCs por padrão).
 
@@ -213,7 +205,7 @@ devspaces-gitops-argocd-application-controller   Role/devspaces-gitops-argocd-ap
 devspaces-gitops-argocd-server                   Role/devspaces-gitops-argocd-server
 ```
 
-## 6. Applications
+## 5. Applications
 
 | Application | Repositório | Path | prune |
 | --- | --- | --- | --- |
@@ -233,14 +225,14 @@ openshift-aro1    Synced        Healthy
 redirector-aro1   Synced        Progressing
 ```
 
-`redirector-aro1` fica `Progressing` até o secret de sessão do passo 7. Para forçar um novo sync:
+`redirector-aro1` fica `Progressing` até o secret de sessão do passo 6. Para forçar um novo sync:
 
 ```bash
 oc patch application redirector-aro1 -n devspaces-gitops --type merge \
   -p '{"operation":{"initiatedBy":{"username":"admin"},"sync":{"revision":"HEAD"}}}'
 ```
 
-## 7. Redirector
+## 6. Redirector
 
 Mapeamento (`openshift/base/configmap.yaml` do repositório do redirector):
 
@@ -284,7 +276,7 @@ redirector-aro1   Synced        Healthy
 
 `403` = página de login do oauth-proxy para usuário não autenticado.
 
-## 8. Sample a partir de repositório privado
+## 7. Sample a partir de repositório privado
 
 `devspaces/base/samples/sample-custom-udi-java.yaml`:
 
@@ -319,7 +311,7 @@ NAME                     DATA   AGE
 sample-custom-udi-java   1      5m
 ```
 
-Dashboard `https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io` → card **Java multi versão (custom UDI)** → **Authorize** GitHub (OAuth App do passo 3.1) → workspace inicia.
+Dashboard `https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io` → card **Java multi versão (custom UDI)** → **Authorize** GitHub (OAuth App do passo 2.1) → workspace inicia.
 
 ```bash
 oc get devworkspace -A
@@ -330,7 +322,7 @@ NAMESPACE                       NAME                   DEVWORKSPACE ID          
 <usuario>-devspaces             custom-udi-java-xxxx   workspacexxxxxxxxxxxxxxxx   Running   Workspace is running
 ```
 
-## 9. Validação
+## 8. Validação
 
 | Teste | Usuário | URL | Esperado |
 | --- | --- | --- | --- |
@@ -358,11 +350,10 @@ Comportamento do prune:
 | Remover `devspaces/base/samples/sample-custom-udi-java.yaml` | `devspaces-aro1` (prune `true`) | ConfigMap removido |
 | Remover `openshift/base/scc-container-run.yaml` | `openshift-aro1` (prune `false`) | SCC permanece; Application fica `OutOfSync` |
 
-## 10. Repetir no aro2
+## 9. Repetir no aro2
 
 | Item | aro2 |
 | --- | --- |
-| Login | `oc login https://api.pmw9dsj2w2debff947.eastus.aroapp.io:6443 -u kubeadmin -p '<SENHA>'` |
 | Secret `github-oauth-config` | `<CLIENT_ID>` / `<CLIENT_SECRET>` do OAuth App do aro2 |
 | Instância Dev Spaces | `oc apply -k openshift/aro2` → `allowGroups` com team-a `9fc9bd05-...` |
 | Applications | `oc apply -k argocd/aro2` → `openshift-aro2`, `devspaces-aro2`, `redirector-aro2` |
