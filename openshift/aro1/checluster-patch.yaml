@@ -11,5 +11,5 @@ spec:
           - kube:admin
         allowGroups:
           - 73f74865-025d-404c-8214-22a3941a563b   # team-b (Entra ID)
-          - 9fc9bd05-1de2-4fad-920d-b8427e6cf276
+          - f696c676-09d8-4bd6-a0a3-d49e7100a3ca
           #- 6a758b5d-bbfb-498c-ae13-0cea9803de29   # admins (Entra ID)
