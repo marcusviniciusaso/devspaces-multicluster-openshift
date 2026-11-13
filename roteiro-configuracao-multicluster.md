@@ -322,35 +322,7 @@ NAMESPACE                       NAME                   DEVWORKSPACE ID          
 <usuario>-devspaces             custom-udi-java-xxxx   workspacexxxxxxxxxxxxxxxx   Running   Workspace is running
 ```
 
-## 8. Validação
-
-| Teste | Usuário | URL | Esperado |
-| --- | --- | --- | --- |
-| Redirect team-a | `marolive@redhat.com` | `https://devspaces-redirector.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io` | dashboard do aro2 |
-| Redirect team-b | `jdasilve@redhat.com` | `https://devspaces-redirector.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io` | dashboard do aro1 |
-| Isolamento | `jdasilve@redhat.com` | `https://devspaces.apps.pmw9dsj2w2debff947.eastus.aroapp.io` | acesso negado |
-| Admin | `marolive@redhat.com` (grupo admin) | dashboards de aro1 e aro2 | acesso permitido |
-| Sem grupo mapeado | usuário fora de team-a/team-b | redirector | página sem destino |
-
-```bash
-oc get groups 9fc9bd05-1de2-4fad-920d-b8427e6cf276 73f74865-025d-404c-8214-22a3941a563b
-```
-
-Mudança de mapeamento sem restart: editar `openshift/base/configmap.yaml` no repositório do redirector, push e conferir:
-
-```bash
-oc get cm devspaces-openshift-group-mapping -n devspaces-redirector -o jsonpath='{.data.group-mapping\.json}'
-oc get pods -n devspaces-redirector     # mesma AGE
-```
-
-Comportamento do prune:
-
-| Ação no Git | Application | Resultado no cluster |
-| --- | --- | --- |
-| Remover `devspaces/base/samples/sample-custom-udi-java.yaml` | `devspaces-aro1` (prune `true`) | ConfigMap removido |
-| Remover `openshift/base/scc-container-run.yaml` | `openshift-aro1` (prune `false`) | SCC permanece; Application fica `OutOfSync` |
-
-## 9. Repetir no aro2
+## 8. Repetir no aro2
 
 | Item | aro2 |
 | --- | --- |
