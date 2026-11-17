@@ -2,7 +2,7 @@
 
 ## Ambiente
 
-OpenShift 4.20.15 · Dev Spaces 3.30.2 · OpenShift GitOps 1.22.3 · IdP Entra ID (`AAD`, claim `groups`)
+OpenShift 4.20.15 · Dev Spaces 3.31.3 · OpenShift GitOps 1.22.3 · IdP Entra ID (`AAD`, claim `groups`)
 
 Executar os comandos em ambos os clusters.
 
@@ -47,7 +47,7 @@ oc get csv -n openshift-operators
 
 ```
 NAME                           DISPLAY                        VERSION   PHASE
-devspacesoperator.v3.30.2      Red Hat OpenShift Dev Spaces   3.30.2    Succeeded
+devspacesoperator.v3.31.3      Red Hat OpenShift Dev Spaces   3.31.3    Succeeded
 devworkspace-operator.v1.0.0   DevWorkspace Operator          1.0.0     Succeeded
 ```
 
@@ -145,7 +145,7 @@ oc get checluster devspaces -n openshift-devspaces \
 ```
 
 ```
-Active 3.30.2 https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io
+Active 3.31.3 https://devspaces.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io
 ```
 
 ```bash
@@ -245,7 +245,7 @@ Mapeamento (`openshift/base/configmap.yaml` do repositório do redirector):
 
 Overlay `openshift/aro1`: annotation `serviceaccounts.openshift.io/oauth-redirecturi.primary: https://devspaces-redirector.apps.kmw9dlzrxf7af3b80c.eastus.aroapp.io/oauth/callback` e `spec.host` da Route.
 
-Imagem (`openshift/base/deployment.yaml`): `quay.io/marolive/devspaces-multicluster-redirector:1.0.1`, build do fork. A imagem oficial `registry.redhat.io/devspaces/multicluster-redirector-rhel9:3.30.2` lê o usuário de `X-Forwarded-User`, que o oauth-proxy corta no `@`; com nomes de usuário em formato de e-mail (Entra ID) nenhum grupo casa. O fork usa `X-Forwarded-Email` (`UserInfoResource.resolveUserName`).
+Imagem (`openshift/base/deployment.yaml`): `quay.io/marolive/devspaces-multicluster-redirector:1.0.1`, build do fork. A imagem oficial `registry.redhat.io/devspaces/multicluster-redirector-rhel9:3.31.3` lê o usuário de `X-Forwarded-User`, que o oauth-proxy corta no `@`; com nomes de usuário em formato de e-mail (Entra ID) nenhum grupo casa. O fork usa `X-Forwarded-Email` (`UserInfoResource.resolveUserName`).
 
 ```bash
 mvn package -DskipTests -Dquarkus.container-image.build=true -Dquarkus.container-image.push=true \
