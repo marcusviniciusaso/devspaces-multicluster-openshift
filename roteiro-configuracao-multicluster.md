@@ -24,71 +24,66 @@ cd devspaces-multicluster-openshift
 
 ## 1. Operators
 
+Console do OpenShift → **Ecosystem → Software Catalog**.
+
 ### 1.1 Dev Spaces
 
+1. Buscar `dev spaces` → **Red Hat OpenShift Dev Spaces**
+
+   ![Busca do Dev Spaces no Software Catalog](assets/01-dev-spaces-operator-search.png)
+
+2. Canal `stable`, versão `3.31.3` → **Install**
+
+   ![Detalhes do operator Dev Spaces](assets/02-dev-spaces-operator-preinstall.png)
+
+3. Installation mode **All namespaces** · namespace `openshift-operators` · Update approval **Manual** → **Install**
+
+   ![Instalação do operator Dev Spaces](assets/03-dev-spaces-operator-install.png)
+
+4. **Approve** (instala também o DevWorkspace Operator)
+
+   ![Aprovação do install plan do Dev Spaces](assets/04-dev-spaces-operator-approve.png)
+
+5. Operator instalado
+
+   ![Dev Spaces instalado](assets/05-dev-spaces-operator-final.png)
+
+### 1.2 OpenShift GitOps
+
+1. Buscar `gitops` → **Red Hat OpenShift GitOps**
+
+   ![Busca do GitOps no Software Catalog](assets/06-gitops-operator-search.png)
+
+2. Canal `latest`, versão `1.22.3` → **Install**
+
+   ![Detalhes do operator GitOps](assets/07-gitops-operator-preinstall.png)
+
+3. Installation mode **All namespaces** · namespace `openshift-gitops-operator` · Update approval **Manual** → **Install**
+
+   ![Instalação do operator GitOps](assets/08-gitops-operator-install.png)
+
+4. **Approve**
+
+   ![Aprovação do install plan do GitOps](assets/09-gitops-operator-approve.png)
+
+5. Operator instalado
+
+   ![GitOps instalado](assets/10-gitops-operator-final.png)
+
+### 1.3 Conferência
+
 ```bash
-oc apply -f - <<'YAML'
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: devspaces
-  namespace: openshift-operators
-spec:
-  channel: stable
-  name: devspaces
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-  installPlanApproval: Manual
-YAML
-oc get installplan -n openshift-operators
-oc patch installplan <NOME> -n openshift-operators --type merge -p '{"spec":{"approved":true}}'
 oc get csv -n openshift-operators
 ```
 
 ```
-NAME                           DISPLAY                        VERSION   PHASE
-devspacesoperator.v3.31.3      Red Hat OpenShift Dev Spaces   3.31.3    Succeeded
-devworkspace-operator.v1.0.0   DevWorkspace Operator          1.0.0     Succeeded
+NAME                                DISPLAY                        VERSION   REPLACES                            PHASE
+devspacesoperator.v3.31.3           Red Hat OpenShift Dev Spaces   3.31.3    devspacesoperator.v3.31.2           Succeeded
+devworkspace-operator.v1.0.0        DevWorkspace Operator          1.0.0     devworkspace-operator.v0.43.0       Succeeded
+openshift-gitops-operator.v1.22.3   Red Hat OpenShift GitOps       1.22.3    openshift-gitops-operator.v1.22.2   Succeeded
 ```
 
-### 1.2 OpenShift GitOps
-
-```bash
-oc apply -f - <<'YAML'
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: openshift-gitops-operator
----
-apiVersion: operators.coreos.com/v1
-kind: OperatorGroup
-metadata:
-  name: openshift-gitops-operator
-  namespace: openshift-gitops-operator
-spec:
-  upgradeStrategy: Default
----
-apiVersion: operators.coreos.com/v1alpha1
-kind: Subscription
-metadata:
-  name: openshift-gitops-operator
-  namespace: openshift-gitops-operator
-spec:
-  channel: latest
-  name: openshift-gitops-operator
-  source: redhat-operators
-  sourceNamespace: openshift-marketplace
-  installPlanApproval: Manual
-YAML
-oc get installplan -n openshift-gitops-operator
-oc patch installplan <NOME> -n openshift-gitops-operator --type merge -p '{"spec":{"approved":true}}'
-oc get csv -n openshift-gitops-operator
-```
-
-```
-NAME                                DISPLAY                    VERSION   PHASE
-openshift-gitops-operator.v1.22.3   Red Hat OpenShift GitOps   1.22.3    Succeeded
-```
+Os dois operators usam **All namespaces**: os CSVs aparecem em qualquer namespace (ex.: `-n openshift-gitops-operator` retorna a mesma lista).
 
 ## 2. Secrets de acesso ao GitHub
 
